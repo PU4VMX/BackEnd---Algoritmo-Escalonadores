@@ -13,9 +13,12 @@ public class Processo {
     private int tempo_chegada;
     private int prioridade;
     private int tempo_restante;
+    private int tempo_executado;
+    private int instante_inicial;
+    private int instante_final;
 
     public Processo(int pid, String estado, String nome, int tempo_espera, int tempo_execucao, int tempo_chegada,
-            int prioridade, int tempo_restante) {
+            int prioridade, int tempo_restante, int tempo_executado, int instante_inicial, int instante_final) {
         this.pid = pid;
         this.estado = estado;
         this.nome = nome;
@@ -24,6 +27,9 @@ public class Processo {
         this.tempo_chegada = tempo_chegada;
         this.prioridade = prioridade;
         this.tempo_restante = tempo_restante;
+        this.tempo_executado = tempo_executado;
+        this.instante_inicial = instante_inicial;
+        this.instante_final = instante_final;
     }
 
     public Processo(Processo processo) {
@@ -35,5 +41,8 @@ public class Processo {
         this.tempo_chegada = processo.getTempo_chegada();
         this.prioridade = processo.getPrioridade();
         this.tempo_restante = processo.getTempo_restante();
+        this.tempo_executado = processo.getTempo_executado();
+        this.instante_inicial = processo.getInstante_inicial();
+        this.instante_final = processo.getInstante_final();
     }
 }

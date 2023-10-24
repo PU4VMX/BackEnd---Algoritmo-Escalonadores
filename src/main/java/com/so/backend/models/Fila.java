@@ -20,9 +20,20 @@ public class Fila {
         return listaDeProcessos;
     }
 
-    public void putProcesso(Processo processo) throws Exception {
+    public void putProcesso(Processo processo){
         listaDeProcessos.set(listaDeProcessos.indexOf(processo), processo);
         WebSocketService.broker(processo);
+    }
+
+    //metodo em thread que atualiza o tempo de espera de todos os processos da fila
+    public void updateTimeAllProcess(int relogio){
+        for (int i = 0; i < listaDeProcessos.size(); i++) {
+            Processo processo = listaDeProcessos.get(i);
+            if (!processo.getEstado().equals("Finalizado")) {
+                processo.setTempo_espera(relogio - processo.getTempo_chegada());
+                listaDeProcessos.set(i, processo);
+            }
+        }
     }
     
     public Processo get_p_menor_tempo_rest() {

@@ -15,25 +15,21 @@ public class ExecutarController {
 
     @PostMapping("/run")
     public ResponseEntity<String> run(@RequestBody String run) {
+        JSONObject jsonResponse = new JSONObject();
         run = run.toUpperCase();
         escalonadoresController.setAlgoritmo(run);
-        Thread thread = new Thread(escalonadoresController);
-        thread.start();
-        if(EscalonadoresController.getQuant_threads() == 0){
-            JSONObject jsonResponse = new JSONObject();
-        jsonResponse.put("mensagem", "Running");
-            return ResponseEntity.ok(jsonResponse.toString());
+        if (!EscalonadoresController.isBlock_thread()) {
+            Thread escalonadorThread = new Thread(escalonadoresController);
+            escalonadorThread.start();
+            jsonResponse.put("message", "Algoritmo " + run + " iniciado");
+        } else {
+            jsonResponse.put("message", "Já existe uma thread em execução");
         }
-        else{
-            JSONObject jsonResponse = new JSONObject();
-            jsonResponse.put("mensagem", "Já existe uma thread em execução");
-            return ResponseEntity.ok(jsonResponse.toString());
-        }
+        
+        return ResponseEntity.ok(jsonResponse.toString());
     }
-
     @GetMapping("/stop")
     public ResponseEntity<String> stop() {
-        escalonadoresController.stop();
         return ResponseEntity.ok("STOP");
     }
 }

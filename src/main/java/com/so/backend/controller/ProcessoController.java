@@ -35,16 +35,16 @@ public class ProcessoController {
     public ResponseEntity<Processo> criarProcesso(@RequestBody Processo processo) {
         processo.setPid(filaController.fila.getListaDeProcessos().size());
         processo.setNome("P" + processo.getPid());
-        if (EscalonadoresController.getQuant_threads() != 0) {
+        if (EscalonadoresController.isBlock_thread()){
             processo.setEstado("Novo");
-        }
+            processo.setTempo_chegada(EscalonadoresController.getRelogio() + processo.getTempo_chegada());
+        }   
         filaController.fila.addProcesso(processo);
         return ResponseEntity.ok(processo);
     }
 
     @PostMapping("/kill")
     public ResponseEntity<Processo> killProcesso(@RequestBody Processo processo) {
-        // colocar processo como finalizado
         processo.setEstado("Finalizado");
         filaController.fila.getListaDeProcessos().set(processo.getPid(), processo);
         return ResponseEntity.ok(processo);
@@ -54,18 +54,20 @@ public class ProcessoController {
     public ResponseEntity<List<Processo>> criarProcessoRandom() {
         for (int i = 0; i < 5; i++) {
             int pid = filaController.fila.getListaDeProcessos().size() + 1;
-            String estado = "Pronto";
-            if (EscalonadoresController.getQuant_threads() != 0) {
-                estado = "Novo";
-            }
-            String nome = "P" + pid;
-            int tempo_espera = 0;
             int tempo_execucao = new Random().nextInt(10) + 1;
             int tempo_chegada = new Random().nextInt(10);
             int prioridade = new Random().nextInt(10);
+            String estado = "Pronto";
+            if (EscalonadoresController.isBlock_thread()){
+                estado = "Novo";
+                tempo_chegada = EscalonadoresController.getRelogio() + tempo_chegada;
+            }
+            String nome = "P" + pid;
+            int tempo_espera = 0;
+            
             int tempo_restante = tempo_execucao;
             Processo processo = new Processo(pid, estado, nome, tempo_espera, tempo_execucao, tempo_chegada, prioridade,
-                    tempo_restante);
+                    tempo_restante, 0, 0, 0);
             filaController.fila.addProcesso(processo);
         }
         return ResponseEntity.ok(filaController.fila.getListaDeProcessos());
@@ -75,7 +77,6 @@ public class ProcessoController {
     public ResponseEntity<List<Processo>> listarProcessos() {
         return ResponseEntity.ok(filaController.fila.getListaDeProcessos());
     }
-
 
     @GetMapping("/limpar")
     public ResponseEntity<List<Processo>> limparProcessos() {
