@@ -56,7 +56,7 @@ public class ProcessoController {
             int pid = filaController.fila.getListaDeProcessos().size() + 1;
             int tempo_execucao = new Random().nextInt(10) + 1;
             int tempo_chegada = new Random().nextInt(10);
-            int prioridade = new Random().nextInt(10);
+            int prioridade = new Random().nextInt(5);
             String estado = "Pronto";
             if (EscalonadoresController.isBlock_thread()){
                 estado = "Novo";

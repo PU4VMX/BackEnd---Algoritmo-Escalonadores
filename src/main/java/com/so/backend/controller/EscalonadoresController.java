@@ -32,10 +32,10 @@ public class EscalonadoresController implements Runnable {
                     System.out.println("Iniciando algoritmo " + algoritmo + "...");
                     switch (algoritmo) {
                         case "PRIO":
-                            // PRIO();
+                            PRIO();
                             break;
                         case "SRTF":
-                            // SRTF();
+                            SRTF();
                             break;
                         case "SJF":
                             SJF();
@@ -140,20 +140,95 @@ public class EscalonadoresController implements Runnable {
                     continue;
                 } else {
                     if (processo.getTempo_chegada() <= relogio) {
+                        processo.setTempo_espera(relogio);
                         processo.setEstado("Executando");
                         processo.setInstante_inicial(relogio);
-                        processo.setTempo_espera(relogio - processo.getTempo_chegada());
+                        processo.setTempo_executado(processo.getTempo_restante());
                         filaController.fila.putProcesso(processo);
                         sleep(processo.getTempo_restante());
-                        processo.setTempo_executado(processo.getTempo_restante());
                         processo.setTempo_restante(0);
                         processo.setEstado("Finalizado");
                         processo.setInstante_final(relogio);
                         filaController.fila.putProcesso(processo);
                     }
                 }
+                filaController.fila.ordenar("SJF");
             }
         } while (!filaController.isAllFinalizado());
     }
+
+    public void PRIO() {
+        relogio = 0;
+        do {
+            for (int i = 0; i < filaController.fila.getListaDeProcessos().size(); i++) {
+                Processo processo = filaController.fila.getListaDeProcessos().get(i);
+                if (processo.getEstado().equals("Finalizado")) {
+                    continue;
+                } else {
+                    if (processo.getTempo_chegada() <= relogio) {
+                        processo.setTempo_espera(relogio);
+                        processo.setEstado("Executando");
+                        processo.setInstante_inicial(relogio);
+                        processo.setTempo_executado(processo.getTempo_restante());
+                        filaController.fila.putProcesso(processo);
+                        sleep(processo.getTempo_restante());
+                        processo.setTempo_restante(0);
+                        processo.setEstado("Finalizado");
+                        processo.setInstante_final(relogio);
+                        filaController.fila.putProcesso(processo);
+                    } else {
+                        relogio = processo.getTempo_chegada();
+                    }
+                }
+                filaController.fila.ordenar("PRIO");
+            }
+        } while (!filaController.isAllFinalizado());
+    }
+
+    public void SRTF() {
+        relogio = 0;
+        do {
+            for (int i = 0; i < filaController.fila.getListaDeProcessos().size(); i++) {
+                Processo processo = filaController.fila.getListaDeProcessos().get(i);
+                if (processo.getEstado().equals("Finalizado")) {
+                    continue;
+                } else {
+                    if (processo.getTempo_chegada() <= relogio) {
+                        processo.setTempo_espera(relogio);
+                        processo.setEstado("Executando");
+                        processo.setInstante_inicial(relogio);
+                        processo.setTempo_executado(processo.getTempo_restante());
+                        filaController.fila.putProcesso(processo);
+                        for (int j = 0; j < filaController.fila.getListaDeProcessos().size(); j++) {
+                            Processo processo2 = filaController.fila.getListaDeProcessos().get(j);
+                            if (processo2.getTempo_chegada() <= relogio && processo2.getEstado().equals("Novo")) {
+                                if (processo2.getTempo_restante() < processo.getTempo_restante()) {
+                                    processo.setEstado("Em espera");
+                                    processo.setTempo_executado(relogio - processo.getInstante_inicial());
+                                    processo.setTempo_restante(processo.getTempo_restante() - processo.getTempo_executado());
+                                    sleep(processo2.getTempo_restante());
+                                    processo.setInstante_final(relogio);
+                                    filaController.fila.putProcesso(processo);
+                                    processo = processo2;
+                                    processo.setEstado("Executando");
+                                    processo.setInstante_inicial(relogio);
+                                    processo.setTempo_executado(processo.getTempo_restante());
+                                    filaController.fila.putProcesso(processo);
+                                }
+                            }
+                        }
+                        sleep(processo.getTempo_restante());
+                        processo.setTempo_restante(0);
+                        processo.setEstado("Finalizado");
+                        processo.setInstante_final(relogio);
+                        filaController.fila.putProcesso(processo);
+                    }
+                }
+                filaController.fila.ordenar("SRTF");
+            }
+        } while (!filaController.isAllFinalizado());
+    }
+    
+    
 
 }
