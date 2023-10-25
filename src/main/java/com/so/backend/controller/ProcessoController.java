@@ -1,5 +1,6 @@
 package com.so.backend.controller;
 
+import org.json.JSONObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.so.backend.models.Processo;
+import com.so.backend.models.Relatorio;
 
 import java.util.List;
 import java.util.Random;
@@ -16,6 +18,7 @@ import java.util.Random;
 @RequestMapping("/processo")
 public class ProcessoController {
     static FilaController filaController = new FilaController();
+    static Relatorio relatorio = new Relatorio();
 
     public FilaController getFila() {
         return filaController;
@@ -67,7 +70,7 @@ public class ProcessoController {
             
             int tempo_restante = tempo_execucao;
             Processo processo = new Processo(pid, estado, nome, tempo_espera, tempo_execucao, tempo_chegada, prioridade,
-                    tempo_restante, 0, 0, 0);
+                    tempo_restante, 0, 0, 0, 0, 0);
             filaController.fila.addProcesso(processo);
         }
         return ResponseEntity.ok(filaController.fila.getListaDeProcessos());
@@ -82,6 +85,25 @@ public class ProcessoController {
     public ResponseEntity<List<Processo>> limparProcessos() {
         filaController.fila.getListaDeProcessos().clear();
         return ResponseEntity.ok(filaController.fila.getListaDeProcessos());
+    }
+
+    @GetMapping("/relatorio")
+    public ResponseEntity<String> relatorio() {
+        JSONObject jsonResponse = new JSONObject();
+        Relatorio relatorio = EscalonadoresController.getRelatorio();
+
+        jsonResponse.put("tempo_medio_espera", relatorio.getTempo_medio_espera());
+        jsonResponse.put("tempo_medio_execucao", relatorio.getTempo_medio_execucao());
+        jsonResponse.put("trocas_contexto", relatorio.getTrocas_contexto());
+        jsonResponse.put("tempo_total_execucao", relatorio.getTempo_total_execucao());
+        jsonResponse.put("tempo_total_espera", relatorio.getTempo_total_espera());
+        jsonResponse.put("tempo_total_resposta", relatorio.getTempo_total_resposta());
+        jsonResponse.put("eficiencia", relatorio.getEficiencia());
+        jsonResponse.put("quant_processos", relatorio.getQuant_processos());
+        jsonResponse.put("timestamp_final", relatorio.getTimestamp_final());
+        jsonResponse.put("timestamp_inicial", relatorio.getTimestamp_inicial());
+
+        return ResponseEntity.ok(jsonResponse.toString());
     }
 
 }

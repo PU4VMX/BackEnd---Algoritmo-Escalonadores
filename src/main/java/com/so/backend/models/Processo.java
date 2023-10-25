@@ -16,9 +16,11 @@ public class Processo {
     private int tempo_executado;
     private int instante_inicial;
     private int instante_final;
+    private int trocas_contexto;
+    private int tempo_medio_espera;
 
     public Processo(int pid, String estado, String nome, int tempo_espera, int tempo_execucao, int tempo_chegada,
-            int prioridade, int tempo_restante, int tempo_executado, int instante_inicial, int instante_final) {
+            int prioridade, int tempo_restante, int tempo_executado, int instante_inicial, int instante_final, int trocas_contexto, int tempo_medio_espera) {
         this.pid = pid;
         this.estado = estado;
         this.nome = nome;
@@ -30,6 +32,8 @@ public class Processo {
         this.tempo_executado = tempo_executado;
         this.instante_inicial = instante_inicial;
         this.instante_final = instante_final;
+        this.trocas_contexto = trocas_contexto;
+        this.tempo_medio_espera = tempo_medio_espera;
     }
 
     public Processo(Processo processo) {
@@ -44,5 +48,7 @@ public class Processo {
         this.tempo_executado = processo.getTempo_executado();
         this.instante_inicial = processo.getInstante_inicial();
         this.instante_final = processo.getInstante_final();
+        this.trocas_contexto = processo.getTrocas_contexto();
+        this.tempo_medio_espera = processo.getTempo_medio_espera();
     }
 }
